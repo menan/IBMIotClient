@@ -10,6 +10,7 @@
 		FE3DF82C2254193000EE5BCB /* IBMIoTClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE3DF8222254193000EE5BCB /* IBMIoTClient.framework */; };
 		FE3DF8312254193000EE5BCB /* IBMIoTClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3DF8302254193000EE5BCB /* IBMIoTClientTests.swift */; };
 		FE3DF8332254193000EE5BCB /* IBMIoTClient.h in Headers */ = {isa = PBXBuildFile; fileRef = FE3DF8252254193000EE5BCB /* IBMIoTClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FE3DF83D2254198B00EE5BCB /* IBMIoTClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3DF83C2254198B00EE5BCB /* IBMIoTClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		FE3DF82B2254193000EE5BCB /* IBMIoTClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IBMIoTClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE3DF8302254193000EE5BCB /* IBMIoTClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IBMIoTClientTests.swift; sourceTree = "<group>"; };
 		FE3DF8322254193000EE5BCB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FE3DF83C2254198B00EE5BCB /* IBMIoTClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IBMIoTClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +75,7 @@
 			children = (
 				FE3DF8252254193000EE5BCB /* IBMIoTClient.h */,
 				FE3DF8262254193000EE5BCB /* Info.plist */,
+				FE3DF83C2254198B00EE5BCB /* IBMIoTClient.swift */,
 			);
 			path = IBMIoTClient;
 			sourceTree = "<group>";
@@ -148,6 +151,7 @@
 				TargetAttributes = {
 					FE3DF8212254193000EE5BCB = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 					};
 					FE3DF82A2254193000EE5BCB = {
 						CreatedOnToolsVersion = 10.1;
@@ -194,6 +198,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE3DF83D2254198B00EE5BCB /* IBMIoTClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -341,6 +346,7 @@
 		FE3DF8372254193000EE5BCB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -358,6 +364,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinrit.IBMIoTClient;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -366,6 +373,7 @@
 		FE3DF8382254193000EE5BCB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -391,6 +399,7 @@
 		FE3DF83A2254193000EE5BCB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = P7DAG38SF9;
 				INFOPLIST_FILE = IBMIoTClientTests/Info.plist;
@@ -409,6 +418,7 @@
 		FE3DF83B2254193000EE5BCB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = P7DAG38SF9;
 				INFOPLIST_FILE = IBMIoTClientTests/Info.plist;
