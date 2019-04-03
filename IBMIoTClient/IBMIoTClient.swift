@@ -8,21 +8,18 @@
 
 import UIKit
 
-class IBMIoTClient {
+public class IBMIoTClient {
 
-    static let shared = IBMIoTClient()
+    public static let shared = IBMIoTClient()
     
-    var orgId = ""
-    var apiKey = ""
-    var appToken = ""
+    public var orgId = ""
+    public var apiKey = ""
+    public var appToken = ""
     
     var endPoint: String {
         return "https://\(orgId).messaging.internetofthings.ibmcloud.com/api/v0002"
     }
     
-    var headers: [String: String] {
-        return ["Content-Type": "application/json", "Authentication": "Bearer token"]
-    }
     
     init() {
         //  uncomment this and add auth token, if your project needs.
@@ -34,7 +31,7 @@ class IBMIoTClient {
         config.httpAdditionalHeaders = ["Accept": "application/json", "Content-Type": "application/json", "Authorization": "Bearer \(base64Date.base64EncodedString())"]
     }
     
-    func getDevices(type: String, completionHandler: @escaping (Any?) -> Void) {
+    public func getDevices(type: String, completionHandler: @escaping (Any?) -> Void) {
         guard let devicesURL = URL(string: "\(endPoint)/devices/\(type)/devices") else { return }
         print(devicesURL)
         
@@ -57,7 +54,7 @@ class IBMIoTClient {
 }
 
 
-struct DeviceData: Codable {
+public struct DeviceData: Codable {
     var clientId: String?
     var typeId: String?
     var deviceId: String?
@@ -65,7 +62,7 @@ struct DeviceData: Codable {
     var metadata: Metadata?
 }
 
-struct DeviceInfoData: Codable {
+public struct DeviceInfoData: Codable {
     var serialNumber: String?
     var manufacturer: String?
     var model: String?
@@ -76,7 +73,7 @@ struct DeviceInfoData: Codable {
     var descriptiveLocation: String?
 }
 
-struct Metadata: Codable {
+public struct Metadata: Codable {
     var name: String?
     var armed: String?
 }
