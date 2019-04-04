@@ -12,68 +12,178 @@ public class IBMIoTClient {
 
     public static let shared = IBMIoTClient()
     
-    public var orgId = ""
-    public var apiKey = ""
-    public var appToken = ""
+    public static var orgId = ""
+    public static var apiKey = ""
+    public static var appToken = ""
     
-    var endPoint: String {
-        return "https://\(orgId).messaging.internetofthings.ibmcloud.com/api/v0002"
+    static var endPoint: String {
+        return "https://\(IBMIoTClient.orgId).internetofthings.ibmcloud.com/api/v0002"
     }
     
+    var header: String? {
+        let credentialData = "\(IBMIoTClient.apiKey):\(IBMIoTClient.appToken)".data(using: .utf8)
+        guard let cred = credentialData else { return nil }
+        return cred.base64EncodedString()
+    }
     
-    init() {
-        //  uncomment this and add auth token, if your project needs.
+    var session: URLSession {
         let config = URLSessionConfiguration.default
-        let credentialData = "\(apiKey):\(appToken)".data(using: .utf8)
-        guard let cred = credentialData else { return }
-        let base64Credentials = cred.base64EncodedData(options: [])
-        guard let base64Date = Data(base64Encoded: base64Credentials) else { return }
-        config.httpAdditionalHeaders = ["Accept": "application/json", "Content-Type": "application/json", "Authorization": "Bearer \(base64Date.base64EncodedString())"]
+        if let header = header {
+            config.httpAdditionalHeaders = ["Authorization": "Basic \(header)", "Content-Type" : "application/json"]
+        }
+        
+        return URLSession(configuration: config)
     }
     
-    public func getDevices(type: String, completionHandler: @escaping (Any?) -> Void) {
-        guard let devicesURL = URL(string: "\(endPoint)/devices/\(type)/devices") else { return }
-        print(devicesURL)
+    
+    public func getDevices(typeId: String, completionHandler: @escaping (Any?) -> Void) {
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return }
+        print("URL", devicesURL)
         
         let request = NSMutableURLRequest(url: devicesURL)
-        
-        let session = URLSession.shared
         request.httpMethod = "GET"
-        
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
             guard let data = data else { return }
             do {
-                let deviceData = try JSONDecoder().decode(DeviceInfoData.self, from: data)
-                print("response data:", deviceData)
+                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
                 completionHandler(deviceData)
             } catch let err {
-                print("Err", err)
+                print("Err", err.localizedDescription)
+                completionHandler(err)
             }
         }.resume()
+    }
+    
+    public func getDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "GET"
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                guard let res = response as? HTTPURLResponse else { return completionHandler(err) }
+                completionHandler(res.statusCode)
+            }
+            }.resume()
+    }
+    
+    
+    public func deleteDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "DELETE"
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let res = response as? HTTPURLResponse else { return completionHandler(error) }
+            completionHandler(res.statusCode)
+            }.resume()
+    }
+    
+    public func updateDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "PUT"
+        request.httpBody = try! JSONEncoder().encode(device)
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                completionHandler(err)
+            }
+            }.resume()
+    }
+    
+    public func addDevice( device: inout DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "POST"
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            device.typeId = nil
+            let jsonData = try jsonEncoder.encode(device)
+            request.httpBody = jsonData
+        }
+        catch let err {
+            print("Error parsing data \(err.localizedDescription)")
+        }
+        
+        
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let res = response as? HTTPURLResponse else { return }
+            
+            guard let data = data else { return }
+            if res.statusCode != 201 {
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Add Device Error: " + jsonString!)
+                return completionHandler(res.statusCode)
+            }
+            
+            print("Add user response \(response!)")
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                completionHandler(err)
+            }
+            }.resume()
     }
 }
 
 
+
+
+public struct ResultsData: Codable {
+    public var results: [DeviceData]
+}
+
 public struct DeviceData: Codable {
-    var clientId: String?
-    var typeId: String?
-    var deviceId: String?
-    var deviceInfo: DeviceInfoData?
-    var metadata: Metadata?
+    public init() {}
+    public var clientId: String?
+    public var authToken: String?
+    public var typeId: String?
+    public var deviceId: String?
+    public var deviceInfo: DeviceInfoData?
+    public var metadata: Metadata?
 }
 
 public struct DeviceInfoData: Codable {
-    var serialNumber: String?
-    var manufacturer: String?
-    var model: String?
-    var deviceClass: String?
-    var description : String?
-    var fwVersion: String?
-    var hwVersion: String?
-    var descriptiveLocation: String?
+    public init() {}
+    public var serialNumber: String?
+    public var manufacturer: String?
+    public var model: String?
+    public var deviceClass: String?
+    public var description : String?
+    public var fwVersion: String?
+    public var hwVersion: String?
+    public var descriptiveLocation: String?
 }
 
 public struct Metadata: Codable {
-    var name: String?
-    var armed: String?
+    public init() {}
+    public var name: String?
+    public var triggers: [String?]?
+    public var armed: String?
 }
