@@ -1,4 +1,4 @@
-# IBMIotClient for  devices
+# IBMIotClient for 
 
 ## Overview
 IBM IoT Watson Swift Client for managing devices
