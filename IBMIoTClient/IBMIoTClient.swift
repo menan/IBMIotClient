@@ -44,11 +44,17 @@ public class IBMIoTClient {
         request.httpMethod = "GET"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
             guard let data = data else { return }
+            
             do {
                 let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
                 completionHandler(deviceData)
             } catch let err {
                 print("Err", err.localizedDescription)
+                
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Get Devices Error: " + jsonString!)
+                
+                
                 completionHandler(err)
             }
         }.resume()
@@ -139,8 +145,6 @@ public class IBMIoTClient {
                 print("Add Device Error: " + jsonString!)
                 return completionHandler(res.statusCode)
             }
-            
-            print("Add user response \(response!)")
             do {
                 let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
                 completionHandler(deviceData)
@@ -184,6 +188,10 @@ public struct DeviceInfoData: Codable {
 public struct Metadata: Codable {
     public init() {}
     public var name: String?
-    public var triggers: [String?]?
-    public var armed: String?
+    public var armed: Bool?
+    public var fire: Bool?
+    public var co: Bool?
+    public var pir: Bool?
+    public var mic: Bool?
+    public var scream: Bool?
 }
