@@ -12,9 +12,9 @@ public class IBMIoTClient {
 
     public static let shared = IBMIoTClient()
     
-    public static var orgId = ""
-    public static var apiKey = ""
-    public static var appToken = ""
+    public static var orgId = "" // your organization id
+    public static var apiKey = "" // IBM Watson IoT api key
+    public static var appToken = "" // IBM Watson IoT app token
     
     static var endPoint: String {
         return "https://\(IBMIoTClient.orgId).internetofthings.ibmcloud.com/api/v0002"
