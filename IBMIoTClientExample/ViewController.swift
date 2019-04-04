@@ -15,9 +15,9 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        IBMIoTClient.apiKey = "a-axloj7-f2voz6prqr"
-        IBMIoTClient.appToken = ")IT9D0ubrRP7DI90NO"
-        IBMIoTClient.orgId = "axloj7"
+        IBMIoTClient.apiKey = ""
+        IBMIoTClient.appToken = ""
+        IBMIoTClient.orgId = ""
         
         
         IBMIoTClient.shared.getDevices(typeId: "hub") { (res) in
