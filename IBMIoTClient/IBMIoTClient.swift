@@ -60,6 +60,33 @@ public class IBMIoTClient {
         }.resume()
     }
     
+    
+    public func getDevices(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/devices") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "GET"
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let data = data else { return }
+            
+            do {
+                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Get Devices Error: " + jsonString!)
+                
+                
+                completionHandler(err)
+            }
+            }.resume()
+    }
+    
     public func getDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
@@ -188,6 +215,7 @@ public struct DeviceInfoData: Codable {
 public struct Metadata: Codable {
     public init() {}
     public var name: String?
+    public var authenticated: Bool?
     public var armed: Bool?
     public var fire: Bool?
     public var co: Bool?
