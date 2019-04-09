@@ -72,6 +72,9 @@ public class IBMIoTClient {
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
             guard let data = data else { return }
             
+            let jsonString = String(data: data, encoding: .utf8)
+            print("Get Devices Response: " + jsonString!)
+            
             do {
                 let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
                 completionHandler(deviceData)

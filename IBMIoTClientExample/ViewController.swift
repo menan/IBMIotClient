@@ -48,6 +48,14 @@ class ViewController: UIViewController {
         }
         
         
+        var loadDeviceData = DeviceData()
+        loadDeviceData.typeId = "hub"
+        loadDeviceData.deviceId = "807d3ac552b0"
+        
+        IBMIoTClient.shared.getDevices(device: loadDeviceData) { (res) in
+            print("Fetched Devices for \(loadDeviceData.deviceId!): ", res!)
+        }
+        
         var newDevice = DeviceData()
         newDevice.typeId = "hub"
 //        newDevice.authToken = "menna"
