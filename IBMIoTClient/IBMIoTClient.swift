@@ -222,4 +222,5 @@ public struct Metadata: Codable {
     public var pir: Bool?
     public var mic: Bool?
     public var scream: Bool?
+    public var ssid: String?
 }
