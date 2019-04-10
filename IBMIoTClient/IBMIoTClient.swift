@@ -131,10 +131,14 @@ public class IBMIoTClient {
         guard let deviceId = device.deviceId else { return }
         guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
         print("URL", devicesURL)
+        var updateDevice = device
+        updateDevice.typeId = nil
+        updateDevice.deviceId = nil
+        
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "PUT"
-        request.httpBody = try! JSONEncoder().encode(device)
+        request.httpBody = try! JSONEncoder().encode(updateDevice)
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
             guard let data = data else { return }
             do {
