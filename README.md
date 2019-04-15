@@ -1,7 +1,7 @@
 # IBMIotClient for 
 ![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
 
-IBM IoT Watson Swift Client for managing devices
+IBM IoT Watson Swift Client for managing, publishing and commanding devices and gateways.
 
 ## Installation
 
