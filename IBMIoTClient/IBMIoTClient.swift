@@ -19,6 +19,9 @@ public class IBMIoTClient {
     static var endPoint: String {
         return "https://\(IBMIoTClient.orgId).internetofthings.ibmcloud.com/api/v0002"
     }
+    static var msgEndPoint: String {
+        return "https://\(IBMIoTClient.orgId).messaging.internetofthings.ibmcloud.com/api/v0002"
+    }
     
     var header: String? {
         let credentialData = "\(IBMIoTClient.apiKey):\(IBMIoTClient.appToken)".data(using: .utf8)
@@ -36,6 +39,8 @@ public class IBMIoTClient {
     }
     
     
+    
+    // MARK: - Device Operations
     public func getDevices(typeId: String, completionHandler: @escaping (Any?) -> Void) {
         guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return }
         print("URL", devicesURL)
@@ -184,10 +189,90 @@ public class IBMIoTClient {
             }
             }.resume()
     }
+    
+    
+    // MARK: - Device Mesaging
+    
+    func publish(device: DeviceData, eventName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/events/\(eventName)") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "POST"
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(message)
+            request.httpBody = jsonData
+        }
+        catch let err {
+            print("Error parsing data \(err.localizedDescription)")
+        }
+        
+        
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let res = response as? HTTPURLResponse else { return }
+            
+            guard let data = data else { return }
+            if res.statusCode != 201 {
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Publish event error: " + jsonString!)
+                return completionHandler(res.statusCode)
+            }
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                completionHandler(err)
+            }
+            }.resume()
+    }
+    
+    func command(device: DeviceData, commandName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/commands/\(commandName)") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "POST"
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(message)
+            request.httpBody = jsonData
+        }
+        catch let err {
+            print("Error parsing data \(err.localizedDescription)")
+        }
+        
+        
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let res = response as? HTTPURLResponse else { return }
+            
+            guard let data = data else { return }
+            if res.statusCode != 201 {
+                let jsonString = String(data: data, encoding: .utf8)
+                print("Publish event error: " + jsonString!)
+                return completionHandler(res.statusCode)
+            }
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                completionHandler(err)
+            }
+            }.resume()
+    }
 }
 
 
 
+// MARK: - Device Models
 
 public struct ResultsData: Codable {
     public var results: [DeviceData]
@@ -226,4 +311,11 @@ public struct Metadata: Codable {
     public var mic: Bool?
     public var scream: Bool?
     public var ssid: String?
+}
+
+public struct Message: Codable {
+    public init() {}
+    public var deviceId: String?
+    public var status: Int?
+    
 }
