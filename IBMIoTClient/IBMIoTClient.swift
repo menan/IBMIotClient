@@ -318,6 +318,7 @@ public struct DeviceData: Codable {
     public var deviceId: String?
     public var deviceInfo: DeviceInfoData?
     public var metadata: Metadata?
+    public var stateData: DeviceStateData?
 }
 
 public struct DeviceInfoData: Codable {
