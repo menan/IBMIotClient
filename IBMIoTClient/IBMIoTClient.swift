@@ -201,7 +201,7 @@ public class IBMIoTClient {
     
     // MARK: - Device Mesaging
     
-    func publish(device: DeviceData, eventName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
+    public func publish(device: DeviceData, eventName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
         guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/events/\(eventName)") else { return }
@@ -239,7 +239,7 @@ public class IBMIoTClient {
             }.resume()
     }
     
-    func command(device: DeviceData, commandName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
+    public func command(device: DeviceData, commandName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
         guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/commands/\(commandName)") else { return }
@@ -276,7 +276,31 @@ public class IBMIoTClient {
             }
             }.resume()
     }
+    
+    // MARK :- Device Data
+    
+    public func getDeviceState(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+        guard let typeId = device.typeId else { return }
+        guard let deviceId = device.deviceId else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/state/5cb577f7ecbfc5002863bd25") else { return }
+        print("URL", devicesURL)
+        
+        let request = NSMutableURLRequest(url: devicesURL)
+        request.httpMethod = "GET"
+        _ = session.dataTask(with: request as URLRequest) { data, response, error in
+            guard let data = data else { return }
+            do {
+                let deviceData = try JSONDecoder().decode(DeviceStateData.self, from: data)
+                completionHandler(deviceData)
+            } catch let err {
+                print("Err", err.localizedDescription)
+                guard let res = response as? HTTPURLResponse else { return completionHandler(err) }
+                completionHandler(res.statusCode)
+            }
+            }.resume()
+    }
 }
+
 
 
 
@@ -325,5 +349,18 @@ public struct Message: Codable {
     public init() {}
     public var deviceId: String?
     public var status: Int?
+}
+
+public struct DeviceStateData: Codable {
+    public var timestamp: String?
+    public var updated: String?
+    public var state: DeviceState?
+}
+
+
+public struct DeviceState: Codable {
+    public var temperature: Double
+    public var humidity: Double
+    public var battery: Double
     
 }
