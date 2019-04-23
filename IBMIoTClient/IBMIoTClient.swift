@@ -38,104 +38,92 @@ public class IBMIoTClient {
         return URLSession(configuration: config)
     }
     
+    public enum NetworkError: Error {
+        case badURL
+        case noResponse
+    }
     
     
     // MARK: - Device Operations
-    public func getDevices(typeId: String, completionHandler: @escaping (Any?) -> Void) {
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return }
-        print("URL", devicesURL)
+    public func getDevices(forType typeId: String, completionHandler: @escaping (Result<[DeviceData], Error>) -> Void) {
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return completionHandler(.failure(NetworkError.badURL)) }
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "GET"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let data = data else { return }
+            if let error = error { return completionHandler(.failure(error)) }
+            guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
             
             do {
-                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
-                completionHandler(deviceData)
+                let deviceData = try JSONDecoder().decode([DeviceData].self, from: data)
+                return completionHandler(.success(deviceData))
             } catch let err {
-                print("Err", err.localizedDescription)
-                
-                let jsonString = String(data: data, encoding: .utf8)
-                print("Get Devices Error: " + jsonString!)
-                
-                
-                completionHandler(err)
+                return completionHandler(.failure(err))
             }
         }.resume()
     }
     
     
-    public func getDevices(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+    public func getDevices(forDevice device: DeviceData, completionHandler: @escaping (Result<[DeviceData], Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/devices") else { return }
-        print("URL", devicesURL)
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/devices")  else { return completionHandler(.failure(NetworkError.badURL)) }
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "GET"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let data = data else { return }
-            
-            let jsonString = String(data: data, encoding: .utf8)
-            print("Get Devices Response: " + jsonString!)
+            if let error = error { return completionHandler(.failure(error)) }
+            guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
             
             do {
-                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
-                completionHandler(deviceData)
+                let deviceData = try JSONDecoder().decode([DeviceData].self, from: data)
+                completionHandler(.success(deviceData))
             } catch let err {
-                print("Err", err.localizedDescription)
-                
-                let jsonString = String(data: data, encoding: .utf8)
-                print("Get Devices Error: " + jsonString!)
-                
-                
-                completionHandler(err)
+                return completionHandler(.failure(err))
             }
-            }.resume()
+        }.resume()
     }
     
-    public func getDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+    public func getDevice(device: DeviceData, completionHandler: @escaping (Result<DeviceData, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
-        print("URL", devicesURL)
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)")  else { return completionHandler(.failure(NetworkError.badURL)) }
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "GET"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let data = data else { return }
+            if let error = error { return completionHandler(.failure(error)) }
+            guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
+            
             do {
                 let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
-                completionHandler(deviceData)
+                completionHandler(.success(deviceData))
             } catch let err {
-                print("Err", err.localizedDescription)
-                guard let res = response as? HTTPURLResponse else { return completionHandler(err) }
-                completionHandler(res.statusCode)
+                completionHandler(.failure(err))
             }
-            }.resume()
+        }.resume()
     }
     
     
-    public func deleteDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+    public func deleteDevice(device: DeviceData, completionHandler: @escaping (Result<Int, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
-        print("URL", devicesURL)
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)")  else { return completionHandler(.failure(NetworkError.badURL)) }
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "DELETE"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let res = response as? HTTPURLResponse else { return completionHandler(error) }
-            completionHandler(res.statusCode)
-            }.resume()
+            if let error = error { return completionHandler(.failure(error)) }
+            guard let res = response as? HTTPURLResponse else { return completionHandler(.failure(NetworkError.noResponse)) }
+            return completionHandler(.success(res.statusCode))
+        }.resume()
     }
     
-    public func updateDevice(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
+    public func updateDevice(device: DeviceData, completionHandler: @escaping (Result<DeviceData, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)") else { return }
-        print("URL", devicesURL)
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)")  else { return completionHandler(.failure(NetworkError.badURL)) }
+        
         var updateDevice = device
         updateDevice.typeId = nil
         updateDevice.deviceId = nil
@@ -146,24 +134,21 @@ public class IBMIoTClient {
         request.httpMethod = "PUT"
         request.httpBody = try! JSONEncoder().encode(updateDevice)
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let data = data else { return }
-            
-            let jsonString = String(data: data, encoding: .utf8)
-            print("Update Device Error: " + jsonString!)
+            if let error = error { return completionHandler(.failure(error)) }
+            guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
             do {
                 let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
-                completionHandler(deviceData)
+                completionHandler(.success(deviceData))
             } catch let err {
-                print("Err", err.localizedDescription)
-                completionHandler(err)
+                completionHandler(.failure(err))
             }
-            }.resume()
+        }.resume()
     }
     
-    public func addDevice( device: inout DeviceData, completionHandler: @escaping (Any?) -> Void) {
+    public func addDevice( device: inout DeviceData, completionHandler: @escaping (Result<Int, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return }
-        print("URL", devicesURL)
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices")  else { return completionHandler(.failure(NetworkError.badURL)) }
+        
         
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "POST"
@@ -204,7 +189,7 @@ public class IBMIoTClient {
     public func publish(device: DeviceData, eventName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/events/\(eventName)") else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/events/\(eventName)")  else { return completionHandler(.failure(NetworkError.badURL)) }
         print("URL", devicesURL)
         
         let request = NSMutableURLRequest(url: devicesURL)
@@ -242,7 +227,7 @@ public class IBMIoTClient {
     public func command(device: DeviceData, commandName: String, message: Message, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/commands/\(commandName)") else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.msgEndPoint)/application/types/\(typeId)/devices/\(deviceId)/commands/\(commandName)")  else { return completionHandler(.failure(NetworkError.badURL)) }
         print("URL", devicesURL)
         
         let request = NSMutableURLRequest(url: devicesURL)
@@ -282,7 +267,7 @@ public class IBMIoTClient {
     public func getDeviceState(device: DeviceData, completionHandler: @escaping (Any?) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/state/5cb577f7ecbfc5002863bd25") else { return }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/state/5cb577f7ecbfc5002863bd25")  else { return completionHandler(.failure(NetworkError.badURL)) }
         print("URL", devicesURL)
         
         let request = NSMutableURLRequest(url: devicesURL)
