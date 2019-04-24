@@ -60,8 +60,16 @@ class ViewController: UIViewController {
         newDevice.typeId = "sensor"
         newDevice.deviceId = "3c71bf6c2d60"
         
+        print("Getting device state...")
         IBMIoTClient.shared.getDeviceState(device: newDevice) { (res) in
-            print("Device state: \(res!)")
+            print("Got device state.")
+            switch res {
+            case .failure(let err):
+                print("Failure: \(err.localizedDescription)")
+            case .success(let deviceState):
+                print("Success: \(deviceState)")
+            }
+            
         }
         
         
