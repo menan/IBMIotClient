@@ -46,7 +46,7 @@ public class IBMIoTClient {
     
     
     // MARK: - Device Operations
-    public func getDevices(forType typeId: String, completionHandler: @escaping (Result<[DeviceData], Error>) -> Void) {
+    public func getDevices(forType typeId: String, completionHandler: @escaping (Result<ResultsData, Error>) -> Void) {
         guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices") else { return completionHandler(.failure(NetworkError.badURL)) }
         
         let request = NSMutableURLRequest(url: devicesURL)
@@ -56,7 +56,7 @@ public class IBMIoTClient {
             guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
             
             do {
-                let deviceData = try JSONDecoder().decode([DeviceData].self, from: data)
+                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
                 return completionHandler(.success(deviceData))
             } catch let err {
                 return completionHandler(.failure(err))
@@ -65,7 +65,7 @@ public class IBMIoTClient {
     }
     
     
-    public func getDevices(forDevice device: DeviceData, completionHandler: @escaping (Result<[DeviceData], Error>) -> Void) {
+    public func getDevices(forDevice device: DeviceData, completionHandler: @escaping (Result<ResultsData, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
         guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/devices")  else { return completionHandler(.failure(NetworkError.badURL)) }
@@ -77,7 +77,7 @@ public class IBMIoTClient {
             guard let data = data else { return completionHandler(.failure(NetworkError.noResponse)) }
             
             do {
-                let deviceData = try JSONDecoder().decode([DeviceData].self, from: data)
+                let deviceData = try JSONDecoder().decode(ResultsData.self, from: data)
                 completionHandler(.success(deviceData))
             } catch let err {
                 return completionHandler(.failure(err))
