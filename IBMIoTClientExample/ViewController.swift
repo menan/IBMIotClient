@@ -61,7 +61,7 @@ class ViewController: UIViewController {
         newDevice.deviceId = "3c71bf6c2d60"
         
         print("Getting device state...")
-        IBMIoTClient.shared.getDeviceState(device: newDevice) { (res) in
+        IBMIoTClient.shared.getDeviceState(device: newDevice, withStateId: "5cb577f7ecbfc5002863bd25") { (res) in
             print("Got device state.")
             switch res {
             case .failure(let err):

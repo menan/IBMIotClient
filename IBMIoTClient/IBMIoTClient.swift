@@ -236,10 +236,10 @@ public class IBMIoTClient {
     
     // MARK :- Device Data
     
-    public func getDeviceState(device: DeviceData, completionHandler: @escaping (Result<DeviceStateData, Error>) -> Void) {
+    public func getDeviceState(device: DeviceData, withStateId stateId: String, completionHandler: @escaping (Result<DeviceStateData, Error>) -> Void) {
         guard let typeId = device.typeId else { return }
         guard let deviceId = device.deviceId else { return }
-        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/state/5cb577f7ecbfc5002863bd25")  else { return completionHandler(.failure(NetworkError.badURL)) }
+        guard let devicesURL = URL(string: "\(IBMIoTClient.endPoint)/device/types/\(typeId)/devices/\(deviceId)/state/\(stateId)")  else { return completionHandler(.failure(NetworkError.badURL)) }
         let request = NSMutableURLRequest(url: devicesURL)
         request.httpMethod = "GET"
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
