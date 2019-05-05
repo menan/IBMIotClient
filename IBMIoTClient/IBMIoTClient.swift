@@ -42,6 +42,7 @@ public class IBMIoTClient {
         case badURL
         case noResponse
         case failed
+        case devicedAlreadyExist
     }
     
     
@@ -161,9 +162,9 @@ public class IBMIoTClient {
         }
         
         _ = session.dataTask(with: request as URLRequest) { data, response, error in
-            guard let res = response as? HTTPURLResponse else { return }
             if let error = error { return completionHandler(.failure(error)) }
-            if res.statusCode == 200 {
+            guard let res = response as? HTTPURLResponse else { return completionHandler(.failure(NetworkError.noResponse))}
+            if res.statusCode == 200 || res.statusCode == 201 {
                 guard let data = data else { return completionHandler(.failure(NetworkError.noResponse))}
                 do {
                     let deviceData = try JSONDecoder().decode(DeviceData.self, from: data)
@@ -171,6 +172,9 @@ public class IBMIoTClient {
                 } catch let err {
                     completionHandler(.failure(err))
                 }
+            }
+            else {
+                completionHandler(.failure(NetworkError.devicedAlreadyExist))
             }
         }.resume()
     }
