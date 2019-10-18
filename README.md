@@ -1,9 +1,13 @@
 # IBMIotClient for 
 ![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
+![SPM Compatible](https://camo.githubusercontent.com/ee0daa6ce485b12e85b3878732b203bcdbd8ebba/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f53776966742d352e302d6f72616e67652e737667)
 
 IBM IoT Watson Swift Client for managing, publishing and commanding devices and gateways.
 
 ## Installation
+
+### Swift Package Manager
+- Add `https://github.com/menan/IBMIotClient.git` to your Xcode project
 
 ### Carthage
 - Add `github "menan/IBMIotClient" "master"` to your Cartfile
