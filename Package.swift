@@ -7,10 +7,10 @@ let package = Package(
         .library(name: "IBMIoTClient", targets: ["IBMIoTClient"]),
     ],
     targets: [
-        .target(
-            name: "IBMIoTClient",
+        .target(name: "IBMIoTClientExample")
         .testTarget(
-            name: "IBMIoTClientTests",
-            dependencies: ["IBMIoTClient"]),
+            name: "IBMIoTClientExampleTests",
+            dependencies: ["IBMIoTClientExample"]
+        ),
     ]
 )
