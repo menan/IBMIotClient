@@ -44,6 +44,13 @@
 			remoteGlobalIDString = FE3DF8212254193000EE5BCB;
 			remoteInfo = IBMIoTClient;
 		};
+		68BE53C423597E8B00F971F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE3DF8192254192F00EE5BCB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6893590B225438680077CD11;
+			remoteInfo = IBMIoTClientExample;
+		};
 		FE3DF82D2254193000EE5BCB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE3DF8192254192F00EE5BCB /* Project object */;
@@ -304,6 +311,7 @@
 			);
 			dependencies = (
 				FE3DF82E2254193000EE5BCB /* PBXTargetDependency */,
+				68BE53C523597E8B00F971F4 /* PBXTargetDependency */,
 			);
 			name = IBMIoTClientTests;
 			productName = IBMIoTClientTests;
@@ -462,6 +470,11 @@
 			isa = PBXTargetDependency;
 			target = FE3DF8212254193000EE5BCB /* IBMIoTClient */;
 			targetProxy = 6893593C225438950077CD11 /* PBXContainerItemProxy */;
+		};
+		68BE53C523597E8B00F971F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6893590B225438680077CD11 /* IBMIoTClientExample */;
+			targetProxy = 68BE53C423597E8B00F971F4 /* PBXContainerItemProxy */;
 		};
 		FE3DF82E2254193000EE5BCB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
